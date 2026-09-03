@@ -35,13 +35,13 @@
 				"type": "Copy",
 				"dependsOn": [
 					{
-						"activity": "Read Table Details",
+						"activity": "Start Time",
 						"dependencyConditions": [
 							"Succeeded"
 						]
 					},
 					{
-						"activity": "Start Time",
+						"activity": "Script1",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -181,11 +181,57 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"notebookPath": "/caresync_test/caresync_test/NB_Bronze_to_Silver"
+					"notebookPath": "/caresync_test/caresync_test/NB_Bronze_to_Silver",
+					"baseParameters": {
+						"landing_timestamp": {
+							"value": "@activity('Read Table Details').output.firstRow.source_system",
+							"type": "Expression"
+						},
+						"table_name": {
+							"value": "@activity('Read Table Details').output.firstRow.silver_table_name",
+							"type": "Expression"
+						}
+					}
 				},
 				"linkedServiceName": {
 					"referenceName": "AzureDatabricks1",
 					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Script1",
+				"type": "Script",
+				"dependsOn": [
+					{
+						"activity": "Read Table Details",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "LS_SQL_SERVER",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "Query",
+							"text": {
+								"value": "INSERT INTO ctrl.audit_log\n    (adf_run_id, table_id, table_name, stage, status, start_time)\nVALUES\n    ('123', @{activity('Read Table Details').output.firstRow.table_id}, '@{activity('Read Table Details').output.firstRow.source_table_name}', 'SOURCE_TO_SILVER', 'IN_PROGRESS', SYSUTCDATETIME());",
+								"type": "Expression"
+							}
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00"
 				}
 			}
 		],
@@ -193,6 +239,10 @@
 			"table_id": {
 				"type": "int",
 				"defaultValue": 2
+			},
+			"adf_run_id": {
+				"type": "string",
+				"defaultValue": "1234"
 			}
 		},
 		"variables": {
