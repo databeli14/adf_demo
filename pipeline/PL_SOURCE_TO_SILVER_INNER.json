@@ -1,0 +1,35 @@
+{
+	"name": "PL_SOURCE_TO_SILVER_INNER",
+	"properties": {
+		"activities": [
+			{
+				"name": "Set variable1",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "test",
+					"value": {
+						"value": "@pipeline().parameters.table_details.table_name",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"table_details": {
+				"type": "object"
+			}
+		},
+		"variables": {
+			"test": {
+				"type": "String"
+			}
+		},
+		"annotations": []
+	}
+}
