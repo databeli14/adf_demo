@@ -8,7 +8,7 @@
 				"dependsOn": [],
 				"policy": {
 					"timeout": "0.12:00:00",
-					"retry": 0,
+					"retry": 2,
 					"retryIntervalInSeconds": 30,
 					"secureOutput": false,
 					"secureInput": false
@@ -115,7 +115,7 @@
 				"typeProperties": {
 					"variableName": "start_time",
 					"value": {
-						"value": "@utcNow()",
+						"value": "@string(utcNow())",
 						"type": "Expression"
 					}
 				}
@@ -204,6 +204,42 @@
 				"dependsOn": [
 					{
 						"activity": "Read Table Details",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "LS_SQL_SERVER",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "Query",
+							"text": {
+								"value": "INSERT INTO ctrl.audit_log\n    (adf_run_id, table_id, table_name, stage, status, start_time)\nVALUES\n    ('123', @{activity('Read Table Details').output.firstRow.table_id}, '@{activity('Read Table Details').output.firstRow.source_table_name}', 'SOURCE_TO_SILVER', 'IN_PROGRESS', SYSUTCDATETIME());",
+								"type": "Expression"
+							}
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00"
+				}
+			},
+			{
+				"name": "Script1_copy1",
+				"type": "Script",
+				"dependsOn": [
+					{
+						"activity": "Bronze_To_Silver",
 						"dependencyConditions": [
 							"Succeeded"
 						]
