@@ -5,7 +5,7 @@
 		"type": "AzureSqlDatabase",
 		"typeProperties": {
 			"server": "demo-databeli.database.windows.net",
-			"database": "demo_sql_db",
+			"database": "caresync-metdata-db2",
 			"encrypt": "mandatory",
 			"trustServerCertificate": false,
 			"authenticationType": "SQL",
