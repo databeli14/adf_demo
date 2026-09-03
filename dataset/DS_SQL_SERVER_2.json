@@ -30,7 +30,11 @@
 				"type": "datetime2",
 				"scale": 7
 			}
-		]
+		],
+		"typeProperties": {
+			"schema": "ctrl",
+			"table": "table_config"
+		}
 	},
 	"type": "Microsoft.DataFactory/factories/datasets"
 }
