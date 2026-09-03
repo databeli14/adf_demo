@@ -1,9 +1,9 @@
 {
-	"name": "PL_SOURCE_TO_SILVER",
+	"name": "PL_SOURCE_TO_SILVER_MAIN",
 	"properties": {
 		"activities": [
 			{
-				"name": "Read list of tables",
+				"name": "Get list of tables",
 				"type": "Lookup",
 				"dependsOn": [],
 				"policy": {
@@ -29,6 +29,25 @@
 						"type": "DatasetReference"
 					},
 					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "Ingest tables",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Get list of tables",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Get list of tables').output.value",
+						"type": "Expression"
+					}
 				}
 			}
 		],
