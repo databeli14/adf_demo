@@ -41,7 +41,7 @@
 						]
 					},
 					{
-						"activity": "Script1",
+						"activity": "Read Table Details",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -184,7 +184,7 @@
 					"notebookPath": "/caresync_test/caresync_test/NB_Bronze_to_Silver",
 					"baseParameters": {
 						"landing_timestamp": {
-							"value": "@activity('Read Table Details').output.firstRow.source_system",
+							"value": "@variables('start_time')",
 							"type": "Expression"
 						},
 						"table_name": {
@@ -199,43 +199,7 @@
 				}
 			},
 			{
-				"name": "Script1",
-				"type": "Script",
-				"dependsOn": [
-					{
-						"activity": "Read Table Details",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"policy": {
-					"timeout": "0.12:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"linkedServiceName": {
-					"referenceName": "LS_SQL_SERVER",
-					"type": "LinkedServiceReference"
-				},
-				"typeProperties": {
-					"scripts": [
-						{
-							"type": "Query",
-							"text": {
-								"value": "INSERT INTO ctrl.audit_log\n    (adf_run_id, table_id, table_name, stage, status, start_time)\nVALUES\n    ('123', @{activity('Read Table Details').output.firstRow.table_id}, '@{activity('Read Table Details').output.firstRow.source_table_name}', 'SOURCE_TO_SILVER', 'IN_PROGRESS', SYSUTCDATETIME());",
-								"type": "Expression"
-							}
-						}
-					],
-					"scriptBlockExecutionTimeout": "02:00:00"
-				}
-			},
-			{
-				"name": "Script1_copy1",
+				"name": "Insert Success in Audit Table",
 				"type": "Script",
 				"dependsOn": [
 					{
@@ -262,7 +226,7 @@
 						{
 							"type": "Query",
 							"text": {
-								"value": "INSERT INTO ctrl.audit_log\n    (adf_run_id, table_id, table_name, stage, status, start_time)\nVALUES\n    ('123', @{activity('Read Table Details').output.firstRow.table_id}, '@{activity('Read Table Details').output.firstRow.source_table_name}', 'SOURCE_TO_SILVER', 'IN_PROGRESS', SYSUTCDATETIME());",
+								"value": "update ctrl.audit_log\nset status='SUCCESS',end_time=SYSUTCDATETIME(),records_written=@{activity('Bronze_To_Silver').output.runOutput}\nWHERE table_id=@{pipeline().parameters.table_id}\nand adf_run_id=@{pipeline().parameters.adf_run_id}",
 								"type": "Expression"
 							}
 						}
