@@ -79,6 +79,10 @@
 									"adf_run_id": {
 										"value": "@pipeline().parameters.adf_run_id",
 										"type": "Expression"
+									},
+									"source_system": {
+										"value": "@pipeline().parameters.source_system",
+										"type": "Expression"
 									}
 								}
 							}
