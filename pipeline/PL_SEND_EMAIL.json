@@ -158,7 +158,7 @@
 						]
 					},
 					{
-						"activity": "Set variable1",
+						"activity": "Set Status Table",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -175,7 +175,7 @@
 				}
 			},
 			{
-				"name": "Set variable1",
+				"name": "Set Status Table",
 				"type": "SetVariable",
 				"dependsOn": [
 					{
