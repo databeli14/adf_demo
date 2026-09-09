@@ -111,6 +111,92 @@
 					"variableName": "footer",
 					"value": "for any support reach out to abc@gmail.com"
 				}
+			},
+			{
+				"name": "recepients",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "recepients",
+					"value": {
+						"value": "@pipeline().globalParameters.email_recepient",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Logic Apps Body",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "footer",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "recepients",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Subject",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "header",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Set variable1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "logic_apps_body",
+					"value": "asdf"
+				}
+			},
+			{
+				"name": "Set variable1",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Get  Complete Status",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "status_table",
+					"value": {
+						"value": "@activity('Get  Complete Status').output.value",
+						"type": "Expression"
+					}
+				}
 			}
 		],
 		"parameters": {
@@ -127,6 +213,15 @@
 				"type": "String"
 			},
 			"footer": {
+				"type": "String"
+			},
+			"recepients": {
+				"type": "String"
+			},
+			"status_table": {
+				"type": "String"
+			},
+			"logic_apps_body": {
 				"type": "String"
 			}
 		},
