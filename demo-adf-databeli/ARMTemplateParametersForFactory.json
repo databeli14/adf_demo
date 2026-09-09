@@ -5,6 +5,18 @@
 		"factoryName": {
 			"value": "demo-adf-databeli"
 		},
+		"AzureDatabricks1_accessToken": {
+			"value": ""
+		},
+		"PostgreSql1_password": {
+			"value": ""
+		},
+		"AzureDatabricks1_properties_typeProperties_existingClusterId": {
+			"value": "0903-124814-pjy2nesb"
+		},
+		"AzureKeyVault1_properties_typeProperties_baseUrl": {
+			"value": "https://demo-databeli.vault.azure.net/"
+		},
 		"LS_ADLS_properties_typeProperties_url": {
 			"value": "https://demodatabeliadls.dfs.core.windows.net/"
 		},
@@ -12,19 +24,25 @@
 			"value": "demo-databeli.database.windows.net"
 		},
 		"LS_SQL_SERVER_properties_typeProperties_database": {
-			"value": "demo_sql_db"
+			"value": "caresync-metdata-db2"
 		},
 		"LS_SQL_SERVER_properties_typeProperties_userName": {
 			"value": "databeli"
+		},
+		"PostgreSql1_properties_typeProperties_server": {
+			"value": "ep-patient-bread-azmp6q3u-pooler.c-3.ap-southeast-1.aws.neon.tech"
+		},
+		"PostgreSql1_properties_typeProperties_database": {
+			"value": "neondb"
+		},
+		"PostgreSql1_properties_typeProperties_username": {
+			"value": "neondb_owner"
 		},
 		"TGR_EVENT_SIMPLE_properties_PL_FILE_EVENT_parameters_file_name": {
 			"value": "@triggerBody().fileName"
 		},
 		"TGR_EVENT_SIMPLE_properties_typeProperties_scope": {
 			"value": "/subscriptions/b743cd3c-b416-4693-9da5-4046222a3181/resourceGroups/test/providers/Microsoft.Storage/storageAccounts/demodatabeliadls"
-		},
-		"AzureKeyVault1_properties_typeProperties_baseUrl": {
-			"value": "https://demo-databeli.vault.azure.net/"
 		}
 	}
 }

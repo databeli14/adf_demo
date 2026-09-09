@@ -7,13 +7,37 @@
 			"metadata": "Data Factory name",
 			"defaultValue": "demo-adf-databeli"
 		},
-		"LS_ADLS_properties_typeProperties_url": {
+		"AzureDatabricks1_accessToken": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accessToken' of 'AzureDatabricks1'"
+		},
+		"PostgreSql1_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'PostgreSql1'"
+		},
+		"AzureDatabricks1_properties_typeProperties_existingClusterId": {
 			"type": "string",
-			"defaultValue": "https://demodatabeliadls.dfs.core.windows.net/"
+			"defaultValue": "0903-124814-pjy2nesb"
 		},
 		"AzureKeyVault1_properties_typeProperties_baseUrl": {
 			"type": "string",
 			"defaultValue": "https://demo-databeli.vault.azure.net/"
+		},
+		"LS_ADLS_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://demodatabeliadls.dfs.core.windows.net/"
+		},
+		"PostgreSql1_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "ep-patient-bread-azmp6q3u-pooler.c-3.ap-southeast-1.aws.neon.tech"
+		},
+		"PostgreSql1_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "neondb"
+		},
+		"PostgreSql1_properties_typeProperties_username": {
+			"type": "string",
+			"defaultValue": "neondb_owner"
 		},
 		"LS_SQL_SERVER_properties_typeProperties_server": {
 			"type": "string",
@@ -21,167 +45,17 @@
 		},
 		"LS_SQL_SERVER_properties_typeProperties_database": {
 			"type": "string",
-			"defaultValue": "demo_sql_db"
+			"defaultValue": "caresync-metdata-db2"
 		},
 		"LS_SQL_SERVER_properties_typeProperties_userName": {
 			"type": "string",
 			"defaultValue": "databeli"
-		},
-		"TGR_EVENT_SIMPLE_properties_PL_FILE_EVENT_parameters_file_name": {
-			"type": "string",
-			"defaultValue": "@triggerBody().fileName"
-		},
-		"TGR_EVENT_SIMPLE_properties_typeProperties_scope": {
-			"type": "string",
-			"defaultValue": "/subscriptions/b743cd3c-b416-4693-9da5-4046222a3181/resourceGroups/test/providers/Microsoft.Storage/storageAccounts/demodatabeliadls"
 		}
 	},
 	"variables": {
 		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
 	},
 	"resources": [
-		{
-			"name": "[concat(parameters('factoryName'), '/PL_EMAIL_DEMO_MULTIPLE')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Send_Email",
-						"type": "WebActivity",
-						"dependsOn": [
-							{
-								"activity": "Prepare Email Body",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"method": "POST",
-							"headers": {
-								"Content-Type": "application/json"
-							},
-							"url": "https://prod-37.southeastasia.logic.azure.com:443/workflows/315367d1180c479baf126e4d4414b648/triggers/When_an_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_an_HTTP_request_is_received%2Frun&sv=1.0&sig=OMZPFdPJNyBps2Z7uk9ceiEtt-DeSJaFnzwUKP_S2Yk",
-							"body": {
-								"value": "@variables('logic_apps_body')",
-								"type": "Expression"
-							}
-						}
-					},
-					{
-						"name": "Prepare Email Body",
-						"type": "SetVariable",
-						"dependsOn": [
-							{
-								"activity": "prepare_email_subject",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							},
-							{
-								"activity": "prepare_email_body",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"variableName": "logic_apps_body",
-							"value": {
-								"value": "{\"email_recepient\":\"@{pipeline().parameters.email_recepient}\",\n\"subject\":\"@{variables('email_subject')}\",\n\"body\":\"@{variables('email_body')}\"\n}",
-								"type": "Expression"
-							}
-						}
-					},
-					{
-						"name": "prepare_email_subject",
-						"type": "SetVariable",
-						"dependsOn": [],
-						"policy": {
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"variableName": "email_subject",
-							"value": {
-								"value": "Ingestion Completed",
-								"type": "Expression"
-							}
-						}
-					},
-					{
-						"name": "prepare_email_body",
-						"type": "SetVariable",
-						"dependsOn": [],
-						"policy": {
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"variableName": "email_body",
-							"value": {
-								"value": "The ingestion process has been completed for all tables and below is the status:\n@{replace(string(pipeline().parameters.table_status),'\"','')}\n\nPipeline Run id = @{pipeline().RunId}",
-								"type": "Expression"
-							}
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"email_recepient": {
-						"type": "string"
-					},
-					"table_status": {
-						"type": "array"
-					}
-				},
-				"variables": {
-					"logic_apps_body": {
-						"type": "String"
-					},
-					"email_subject": {
-						"type": "String"
-					},
-					"email_body": {
-						"type": "String"
-					}
-				},
-				"annotations": [],
-				"lastPublishTime": "2026-08-31T10:11:46Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/LS_ADLS')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureBlobFS",
-				"typeProperties": {
-					"url": "[parameters('LS_ADLS_properties_typeProperties_url')]"
-				}
-			},
-			"dependsOn": []
-		},
 		{
 			"name": "[concat(parameters('factoryName'), '/PL_EMAIL_DEMO')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
@@ -315,6 +189,189 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/PL_EMAIL_DEMO_MULTIPLE')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Send_Email",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Prepare Email Body",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "POST",
+							"headers": {
+								"Content-Type": "application/json"
+							},
+							"url": "https://prod-37.southeastasia.logic.azure.com:443/workflows/315367d1180c479baf126e4d4414b648/triggers/When_an_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_an_HTTP_request_is_received%2Frun&sv=1.0&sig=OMZPFdPJNyBps2Z7uk9ceiEtt-DeSJaFnzwUKP_S2Yk",
+							"body": {
+								"value": "@variables('logic_apps_body')",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "Prepare Email Body",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "prepare_email_subject",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							},
+							{
+								"activity": "prepare_email_body",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "logic_apps_body",
+							"value": {
+								"value": "{\"email_recepient\":\"@{pipeline().parameters.email_recepient}\",\n\"subject\":\"@{variables('email_subject')}\",\n\"body\":\"@{variables('email_body')}\"\n}",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "prepare_email_subject",
+						"type": "SetVariable",
+						"dependsOn": [],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "email_subject",
+							"value": {
+								"value": "Ingestion Completed",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "prepare_email_body",
+						"type": "SetVariable",
+						"dependsOn": [],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "email_body",
+							"value": {
+								"value": "The ingestion process has been completed for all tables and below is the status:\n@{replace(string(pipeline().parameters.table_status),'\"','')}\n\nPipeline Run id = @{pipeline().RunId}",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"email_recepient": {
+						"type": "string"
+					},
+					"table_status": {
+						"type": "array"
+					}
+				},
+				"variables": {
+					"logic_apps_body": {
+						"type": "String"
+					},
+					"email_subject": {
+						"type": "String"
+					},
+					"email_body": {
+						"type": "String"
+					}
+				},
+				"annotations": [],
+				"lastPublishTime": "2026-08-31T10:11:46Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/test')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Set variable1",
+						"type": "SetVariable",
+						"dependsOn": [],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "test",
+							"value": {
+								"value": "@formatDateTime(utcNow(),'yyyy-MM-dd_MM:hh:ss')",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"variables": {
+					"test": {
+						"type": "String"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureDatabricks1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureDatabricks",
+				"typeProperties": {
+					"domain": "https://adb-7405609114263651.11.azuredatabricks.net",
+					"accessToken": {
+						"type": "SecureString",
+						"value": "[parameters('AzureDatabricks1_accessToken')]"
+					},
+					"existingClusterId": "[parameters('AzureDatabricks1_properties_typeProperties_existingClusterId')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/AzureKeyVault1')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
@@ -326,6 +383,117 @@
 				}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LS_ADLS')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('LS_ADLS_properties_typeProperties_url')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PostgreSql1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "PostgreSqlV2",
+				"typeProperties": {
+					"server": "[parameters('PostgreSql1_properties_typeProperties_server')]",
+					"port": 5432,
+					"database": "[parameters('PostgreSql1_properties_typeProperties_database')]",
+					"username": "[parameters('PostgreSql1_properties_typeProperties_username')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('PostgreSql1_password')]"
+					},
+					"sslMode": 2,
+					"authenticationType": "Basic"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Binary2')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_ADLS",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"container": {
+						"type": "string"
+					},
+					"folder": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Binary",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": {
+							"value": "@dataset().folder",
+							"type": "Expression"
+						},
+						"fileSystem": {
+							"value": "@dataset().container",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_ADLS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DSParquet1')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_ADLS",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"container": {
+						"type": "string"
+					},
+					"folder": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": {
+							"value": "@dataset().folder",
+							"type": "Expression"
+						},
+						"fileSystem": {
+							"value": "@dataset().container",
+							"type": "Expression"
+						}
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_ADLS')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/DS_ADLS_CSV_DEMO')]",
@@ -464,6 +632,24 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/LS_ADLS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PostgreSqlDataset')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "PostgreSql1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "PostgreSqlV2Table",
+				"schema": [],
+				"typeProperties": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/PostgreSql1')]"
 			]
 		},
 		{
@@ -892,6 +1078,50 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/DS_SQL_SERVER_2')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_SQL_SERVER",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "CustomerID",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "CustomerName",
+						"type": "varchar"
+					},
+					{
+						"name": "Region",
+						"type": "varchar"
+					},
+					{
+						"name": "Email",
+						"type": "varchar"
+					},
+					{
+						"name": "ModifiedDate",
+						"type": "datetime2",
+						"scale": 7
+					}
+				],
+				"typeProperties": {
+					"schema": "ctrl",
+					"table": "table_config"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_SQL_SERVER')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/PL_DEMO')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -937,564 +1167,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/DS_SQL_SERVER')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/PL_DEMO_INGESTION')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Execute_Send_email_pipeline",
-						"type": "ExecutePipeline",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
-						"dependsOn": [
-							{
-								"activity": "Check Soruce Count",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "PL_EMAIL_DEMO",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"table_name": {
-									"value": "@pipeline().parameters.table_name",
-									"type": "Expression"
-								},
-								"email_recepient": {
-									"value": "@pipeline().globalParameters.email_recepient",
-									"type": "Expression"
-								},
-								"status": "SUCCESS"
-							}
-						}
-					},
-					{
-						"name": "Execute_Send_email_pipeline_for_failure",
-						"type": "ExecutePipeline",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
-						"dependsOn": [
-							{
-								"activity": "Check Soruce Count",
-								"dependencyConditions": [
-									"Failed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "PL_EMAIL_DEMO",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"table_name": {
-									"value": "@pipeline().parameters.table_name",
-									"type": "Expression"
-								},
-								"email_recepient": {
-									"value": "@pipeline().globalParameters.email_recepient",
-									"type": "Expression"
-								},
-								"status": "FAILED"
-							}
-						}
-					},
-					{
-						"name": "Read Watermark",
-						"type": "Lookup",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "AzureSqlSource",
-								"sqlReaderQuery": {
-									"value": "SELECT watermark_value from metadata.table_watermarks WHERE table_name ='@{toLower(pipeline().parameters.table_name)}'",
-									"type": "Expression"
-								},
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
-							"dataset": {
-								"referenceName": "DS_SQL_SERVER",
-								"type": "DatasetReference",
-								"parameters": {
-									"schema": "dbo",
-									"table_name": "customer"
-								}
-							}
-						}
-					},
-					{
-						"name": "Check Soruce Count",
-						"type": "IfCondition",
-						"dependsOn": [
-							{
-								"activity": "Check Count in Source",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"expression": {
-								"value": "@greater(activity('Check Count in Source').output.firstRow.count,0)",
-								"type": "Expression"
-							},
-							"ifTrueActivities": [
-								{
-									"name": "Ingest_SQL_DB_DAta",
-									"type": "Copy",
-									"dependsOn": [],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"source": {
-											"type": "AzureSqlSource",
-											"sqlReaderQuery": {
-												"value": "SELECT * from dbo.@{pipeline().parameters.table_name} where modifieddate > '@{activity('Read Watermark').output.firstRow.watermark_value}'",
-												"type": "Expression"
-											},
-											"queryTimeout": "02:00:00",
-											"partitionOption": "None"
-										},
-										"sink": {
-											"type": "DelimitedTextSink",
-											"storeSettings": {
-												"type": "AzureBlobFSWriteSettings"
-											},
-											"formatSettings": {
-												"type": "DelimitedTextWriteSettings",
-												"quoteAllText": true,
-												"fileExtension": ".txt"
-											}
-										},
-										"enableStaging": false,
-										"translator": {
-											"type": "TabularTranslator",
-											"typeConversion": true,
-											"typeConversionSettings": {
-												"allowDataTruncation": true,
-												"treatBooleanAsNumber": false
-											}
-										}
-									},
-									"inputs": [
-										{
-											"referenceName": "DS_SQL_SERVER",
-											"type": "DatasetReference",
-											"parameters": {
-												"schema": "dbo",
-												"table_name": {
-													"value": "@pipeline().parameters.table_name",
-													"type": "Expression"
-												}
-											}
-										}
-									],
-									"outputs": [
-										{
-											"referenceName": "DS_ADLS_CSV_DEMO",
-											"type": "DatasetReference",
-											"parameters": {
-												"table_name": {
-													"value": "@pipeline().parameters.table_name",
-													"type": "Expression"
-												}
-											}
-										}
-									]
-								},
-								{
-									"name": "Update watermark",
-									"type": "Script",
-									"dependsOn": [
-										{
-											"activity": "Ingest_SQL_DB_DAta",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"linkedServiceName": {
-										"referenceName": "LS_SQL_SERVER",
-										"type": "LinkedServiceReference"
-									},
-									"typeProperties": {
-										"scripts": [
-											{
-												"type": "Query",
-												"text": {
-													"value": "update metadata.table_watermarks \nset watermark_value=SYSUTCDATETIME()\nWHERE table_name ='@{pipeline().parameters.table_name}'",
-													"type": "Expression"
-												}
-											}
-										],
-										"scriptBlockExecutionTimeout": "02:00:00"
-									}
-								}
-							]
-						}
-					},
-					{
-						"name": "Check Count in Source",
-						"type": "Lookup",
-						"dependsOn": [
-							{
-								"activity": "Read Watermark",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "AzureSqlSource",
-								"sqlReaderQuery": {
-									"value": "SELECT COUNT(*) as count from dbo.@{pipeline().parameters.table_name} where modifieddate > '@{activity('Read Watermark').output.firstRow.watermark_value}'",
-									"type": "Expression"
-								},
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
-							"dataset": {
-								"referenceName": "DS_SQL_SERVER",
-								"type": "DatasetReference",
-								"parameters": {
-									"schema": "dbo",
-									"table_name": "customers"
-								}
-							}
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"table_name": {
-						"type": "string",
-						"defaultValue": "customers"
-					}
-				},
-				"annotations": [],
-				"lastPublishTime": "2026-08-31T10:11:46Z"
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/PL_EMAIL_DEMO')]",
-				"[concat(variables('factoryId'), '/datasets/DS_SQL_SERVER')]",
-				"[concat(variables('factoryId'), '/datasets/DS_ADLS_CSV_DEMO')]",
-				"[concat(variables('factoryId'), '/linkedServices/LS_SQL_SERVER')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/TGR_EVENT_SIMPLE')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Stopped",
-				"pipelines": [
-					{
-						"pipelineReference": {
-							"referenceName": "PL_FILE_EVENT",
-							"type": "PipelineReference"
-						},
-						"parameters": {
-							"file_name": "[parameters('TGR_EVENT_SIMPLE_properties_PL_FILE_EVENT_parameters_file_name')]"
-						}
-					}
-				],
-				"type": "BlobEventsTrigger",
-				"typeProperties": {
-					"blobPathBeginsWith": "/source/blobs/source_folder",
-					"blobPathEndsWith": ".txt",
-					"ignoreEmptyBlobs": true,
-					"scope": "[parameters('TGR_EVENT_SIMPLE_properties_typeProperties_scope')]",
-					"events": [
-						"Microsoft.Storage.BlobCreated"
-					]
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/PL_FILE_EVENT')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/PL_FOREACH_DEMO')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Ingest All tables",
-						"type": "ForEach",
-						"dependsOn": [
-							{
-								"activity": "Read List of Tables",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@activity('Read List of Tables').output.value",
-								"type": "Expression"
-							},
-							"isSequential": false,
-							"activities": [
-								{
-									"name": "Execute Ingestion Pipeline",
-									"type": "ExecutePipeline",
-									"dependsOn": [],
-									"policy": {
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"pipeline": {
-											"referenceName": "PL_DEMO_INGESTION",
-											"type": "PipelineReference"
-										},
-										"waitOnCompletion": true,
-										"parameters": {
-											"table_name": {
-												"value": "@item().table_name",
-												"type": "Expression"
-											}
-										}
-									}
-								},
-								{
-									"name": "Store Table sucesss",
-									"type": "AppendVariable",
-									"dependsOn": [
-										{
-											"activity": "Execute Ingestion Pipeline",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"userProperties": [],
-									"typeProperties": {
-										"variableName": "table_status",
-										"value": {
-											"value": "@{item().table_name} - Success",
-											"type": "Expression"
-										}
-									}
-								},
-								{
-									"name": "Store Table failure",
-									"type": "AppendVariable",
-									"dependsOn": [
-										{
-											"activity": "Execute Ingestion Pipeline",
-											"dependencyConditions": [
-												"Failed"
-											]
-										}
-									],
-									"userProperties": [],
-									"typeProperties": {
-										"variableName": "table_status",
-										"value": {
-											"value": "@{item().table_name} - Failure",
-											"type": "Expression"
-										}
-									}
-								}
-							]
-						}
-					},
-					{
-						"name": "Read List of Tables",
-						"type": "Lookup",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "3.12:00:00",
-							"retry": 2,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "AzureSqlSource",
-								"sqlReaderQuery": "SELECT table_name from metadata.table_list",
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
-							"dataset": {
-								"referenceName": "DS_SQL_SERVER",
-								"type": "DatasetReference",
-								"parameters": {
-									"schema": "dbo",
-									"table_name": "customers"
-								}
-							},
-							"firstRowOnly": false
-						}
-					},
-					{
-						"name": "Send Consolidated Email",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Ingest All tables",
-								"dependencyConditions": [
-									"Completed"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "PL_EMAIL_DEMO_MULTIPLE",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"email_recepient": {
-									"value": "@pipeline().globalParameters.email_recepient",
-									"type": "Expression"
-								},
-								"table_status": {
-									"value": "@variables('table_status')",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Fail1",
-						"type": "Fail",
-						"dependsOn": [
-							{
-								"activity": "Ingest All tables",
-								"dependencyConditions": [
-									"Failed"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"message": "this pipeline has failed due to previous activity",
-							"errorCode": "500"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"variables": {
-					"table_status": {
-						"type": "Array"
-					}
-				},
-				"annotations": [],
-				"lastPublishTime": "2026-08-31T14:15:22Z"
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/DS_SQL_SERVER')]",
-				"[concat(variables('factoryId'), '/pipelines/PL_EMAIL_DEMO_MULTIPLE')]",
-				"[concat(variables('factoryId'), '/pipelines/PL_DEMO_INGESTION')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/TGR_INgesiton_Schedule')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Started",
-				"pipelines": [
-					{
-						"pipelineReference": {
-							"referenceName": "PL_FOREACH_DEMO",
-							"type": "PipelineReference"
-						},
-						"parameters": {}
-					}
-				],
-				"type": "ScheduleTrigger",
-				"typeProperties": {
-					"recurrence": {
-						"frequency": "Month",
-						"interval": 1,
-						"startTime": "2026-08-31T13:26:00Z",
-						"timeZone": "UTC",
-						"schedule": {
-							"minutes": [
-								30
-							],
-							"hours": [
-								4
-							],
-							"monthDays": [
-								2,
-								30
-							]
-						}
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/PL_FOREACH_DEMO')]"
 			]
 		}
 	]
