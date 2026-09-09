@@ -81,7 +81,7 @@
 							"value": "@variables('start_time')",
 							"type": "Expression"
 						},
-						"source_file_type": {
+						"source_file_format": {
 							"value": "@activity('Read Table Details').output.firstRow.source_file_format",
 							"type": "Expression"
 						}
