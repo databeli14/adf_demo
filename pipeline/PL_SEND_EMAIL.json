@@ -193,7 +193,7 @@
 				"typeProperties": {
 					"variableName": "status_table",
 					"value": {
-						"value": "@activity('Get  Complete Status').output.value",
+						"value": "@string(activity('Get  Complete Status').output.value)",
 						"type": "Expression"
 					}
 				}
