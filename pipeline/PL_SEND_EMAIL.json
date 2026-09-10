@@ -8,8 +8,8 @@
 				"dependsOn": [],
 				"policy": {
 					"timeout": "0.12:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
+					"retry": 2,
+					"retryIntervalInSeconds": 10,
 					"secureOutput": false,
 					"secureInput": false
 				},
@@ -37,8 +37,8 @@
 				"dependsOn": [],
 				"policy": {
 					"timeout": "0.12:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
+					"retry": 2,
+					"retryIntervalInSeconds": 10,
 					"secureOutput": false,
 					"secureInput": false
 				},
@@ -171,7 +171,10 @@
 				"userProperties": [],
 				"typeProperties": {
 					"variableName": "logic_apps_body",
-					"value": "asdf"
+					"value": {
+						"value": "{\n\"subject\":\"@{variables('subject')}\",\n\"header\":\"@{variables('header')}\",\n\"footer\":\"@{variables('footer')}\",\n\"receipents\":\"@{pipeline().globalParameters.email_recepient}\",\n\"status_table\":@{variables('status_table')}\n}",
+						"type": "Expression"
+					}
 				}
 			},
 			{
@@ -194,6 +197,40 @@
 					"variableName": "status_table",
 					"value": {
 						"value": "@string(activity('Get  Complete Status').output.value)",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Web1",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "Logic Apps Body",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "POST",
+					"headers": {
+						"Content-Type": "application/json"
+					},
+					"url": {
+						"value": "@pipeline().globalParameters.logic_apps_url",
+						"type": "Expression"
+					},
+					"body": {
+						"value": "@variables('logic_apps_body')",
 						"type": "Expression"
 					}
 				}
