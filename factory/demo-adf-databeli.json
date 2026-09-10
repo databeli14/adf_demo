@@ -8,7 +8,7 @@
 			},
 			"logic_apps_url": {
 				"type": "string",
-				"value": "https://prod-37.southeastasia.logic.azure.com:443/workflows/315367d1180c479baf126e4d4414b648/triggers/When_an_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_an_HTTP_request_is_received%2Frun&sv=1.0&sig=OMZPFdPJNyBps2Z7uk9ceiEtt-DeSJaFnzwUKP_S2Yk"
+				"value": "https://prod-22.centralindia.logic.azure.com:443/workflows/4f91c16f149f43ddb67003f19b80e4f9/triggers/When_an_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_an_HTTP_request_is_received%2Frun&sv=1.0&sig=QFIC87L7ihxY3lCxTCVh3azRonS5shrzBCNgMk2KLXM"
 			}
 		},
 		"trustModeClaimForMi": {
